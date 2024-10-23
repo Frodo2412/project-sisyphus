@@ -3,6 +3,8 @@ import SwiftUI
 struct TodayView: View {
     @StateObject private var viewModel: TodayViewModel
     
+    @State private var isPresentingNewForm: Bool = false
+    
     // Initialize the view with the ViewModel
     init(_ viewModel: TodayViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -27,6 +29,14 @@ struct TodayView: View {
                 }
             }
             .navigationTitle("Today")
+            .toolbar {
+                Button(action: {
+                    isPresentingNewForm = true
+                }) {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("New Todo")
+            }
         }
     }
 }
