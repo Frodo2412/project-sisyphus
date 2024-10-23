@@ -2,10 +2,10 @@ import Foundation
 
 struct Todo: Identifiable, Schedulable {
     let id: UUID
-    let name: String
-    let description: String?
-    let scheduledAt: Date?
-    let completedAt: Date?
+    var name: String
+    var description: String?
+    var scheduledAt: Date?
+    var completedAt: Date?
     
     init(id: UUID = UUID(), name: String, description: String?, scheduledAt: Date? = nil, completedAt: Date? = nil) {
         self.id = id

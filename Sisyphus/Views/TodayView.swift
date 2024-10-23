@@ -1,37 +1,28 @@
 import SwiftUI
 
 struct TodayView: View {
+    @StateObject private var viewModel: TodayViewModel
     
-    let todos: [Todo]
-    let activities: [Activity]
-    
-    private var scheduledTodos: [Todo] {
-        todos.filter { $0.scheduledAt != nil }
-    }
-    private var unscheduledTodos: [Todo] {
-        todos.filter { $0.scheduledAt == nil }
-    }
-    
-    private var scheduled: [AnySchedulable] {
-        (activities.map { AnySchedulable($0) } + scheduledTodos.map { AnySchedulable($0) })
-            .sorted { $0.content.start < $1.content.start }
+    // Initialize the view with the ViewModel
+    init(_ viewModel: TodayViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     var body: some View {
         NavigationStack {
             List {
                 Section(header: Text("Agenda")) {
-                    ForEach(scheduled) { schedulable in
-                        if let activity = schedulable.content as? Activity {
-                            ActivityCard(activity: activity)
-                        } else if let todo = schedulable.content as? Todo {
-                            TodoCard(todo: todo)
+                    ForEach(viewModel.scheduledItems, id: \.start) { schedulable in
+                        if let activity = schedulable as? Activity {
+                            ActivityCard(activity: .constant(activity))
+                        } else if let todo = schedulable as? Todo {
+                            TodoCard(todo: .constant(todo))
                         }
                     }
                 }
                 Section(header: Text("Sometime today")) {
-                    ForEach(unscheduledTodos) { todo in
-                        TodoCard(todo: todo)
+                    ForEach(viewModel.unscheduledTodos, id: \.id) { todo in
+                        TodoCard(todo: .constant(todo))
                     }
                 }
             }
@@ -47,8 +38,7 @@ private let formatter: DateFormatter = {
 }()
 
 struct TodoCard: View {
-    
-    var todo: Todo
+    @Binding var todo: Todo
     
     var body: some View {
         HStack {
@@ -82,66 +72,51 @@ struct TodoCard: View {
             }
             .padding(2)
         }
-        .frame(height: 40)  // Ensures uniform height
+        .frame(height: 40)
     }
 }
 
 struct ActivityCard: View {
-    
-    var activity: Activity
+    @Binding var activity: Activity
     
     let now = Date()
     
     var isActive: Bool {
-        return now >= activity.startDate && now <= activity.endDate
+        now >= activity.startDate && now <= activity.endDate
     }
     
     var isOver: Bool {
-        return now > activity.endDate
+        now > activity.endDate
     }
-
+    
     var style: any ShapeStyle {
-        if (isActive) { SelectionShapeStyle.selection }
-        else if (isOver) { HierarchicalShapeStyle.tertiary }
-        else { HierarchicalShapeStyle.secondary }
+        if isActive {
+            return SelectionShapeStyle.selection
+        } else if isOver {
+            return HierarchicalShapeStyle.tertiary
+        } else {
+            return HierarchicalShapeStyle.secondary
+        }
     }
     
     var body: some View {
         HStack {
             VStack {
-                Text("\(formatter.string(from: activity.startDate))")
+                Text(formatter.string(from: activity.startDate))
                     .font(.caption)
                     .foregroundStyle(style)
-                Text("\(formatter.string(from: activity.endDate))")
+                Text(formatter.string(from: activity.endDate))
                     .font(.caption)
                     .foregroundStyle(style)
             }
             Text(activity.name)
                 .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .leading)  // Ensures content alignment
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(height: 40)  // Ensures uniform height
-    }
-}
-
-struct AnySchedulable: Identifiable {
-    let id: UUID
-    let content: Schedulable
-    
-    init(_ activity: Activity) {
-        self.id = activity.id
-        self.content = activity
-    }
-    
-    init(_ todo: Todo) {
-        self.id = todo.id
-        self.content = todo
+        .frame(height: 40)
     }
 }
 
 #Preview {
-    TodayView(
-        todos: Todo.sampleData.filter { $0.isScheduledForToday() },
-        activities: Activity.sampleActivities.filter { $0.isScheduledForToday() }
-    )
+    TodayView(TodayViewModel.sample)
 }

@@ -1,7 +1,6 @@
 import Foundation
 
-public protocol Schedulable {
-    
+protocol Schedulable {
     var start: Date { get }
     
 }
