@@ -11,17 +11,18 @@ struct NewSchedulableSheet: View {
     
     var body: some View {
 #if os(iOS)
-        Picker(selection: $selected, label: /*@START_MENU_TOKEN@*/Text("Picker")/*@END_MENU_TOKEN@*/) {
+        Picker(selection: $selected, label: Text("Select Type")) {
             Text("Todo").tag(SchedulableType.todo)
             Text("Activity").tag(SchedulableType.activity)
-        }.pickerStyle(.palette)
-            .padding()
+        }
+        .pickerStyle(.segmented)
+        .padding()
 #endif
+        
         TabView(selection: $selected) {
             Tab("Todo", systemImage: "checkmark.circle", value: .todo) {
                 Text("Create Todo")
             }
-            
             Tab("Activity", systemImage: "calendar", value: .activity) {
                 Text("Create Activity")
             }
@@ -29,9 +30,8 @@ struct NewSchedulableSheet: View {
 #if os(iOS)
         .tabViewStyle(.page)
 #endif
-        
     }
-    
+
 }
 
 #Preview {
