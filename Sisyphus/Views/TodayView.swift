@@ -37,6 +37,8 @@ struct TodayView: View {
                 }
                 .accessibilityLabel("New Todo")
             }
+        }.sheet(isPresented: $isPresentingNewForm) {
+            NewSchedulableSheet()
         }
     }
 }
@@ -80,9 +82,7 @@ struct TodoCard: View {
                     }
                 }
             }
-            .padding(2)
         }
-        .frame(height: 40)
     }
 }
 
@@ -111,19 +111,23 @@ struct ActivityCard: View {
     
     var body: some View {
         HStack {
-            VStack {
-                Text(formatter.string(from: activity.startDate))
-                    .font(.caption)
-                    .foregroundStyle(style)
-                Text(formatter.string(from: activity.endDate))
-                    .font(.caption)
-                    .foregroundStyle(style)
+            RoundedRectangle(cornerRadius: 4)
+                .frame(width: 2, height: 40)
+                .padding(.trailing, 2)
+            VStack(alignment: .leading) {
+                Text(activity.name)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack {
+                    Text(formatter.string(from: activity.startDate))
+                        .font(.caption)
+                        .foregroundStyle(style)
+                    Text(formatter.string(from: activity.endDate))
+                        .font(.caption)
+                        .foregroundStyle(style)
+                }
             }
-            Text(activity.name)
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(height: 40)
     }
 }
 
